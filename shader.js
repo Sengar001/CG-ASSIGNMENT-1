@@ -2,8 +2,7 @@ export const vertexShaderSource = `
     attribute vec2 position;
     uniform mat4 uModelMatrix;
     void main() {
-        vec4 transformedPosition = uModelMatrix * vec4(position, 0.0, 1.0);
-        gl_Position = vec4(position, 0.0, 1.0);
+        gl_Position = uModelMatrix * vec4(position, 0.0, 1.0);
     }
 `;
 

@@ -27,6 +27,16 @@ export function drawShapes(gl, shapes, currentVertices, positionBuffer, position
         gl.enableVertexAttribArray(positionLocation);
         gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
+
+        // Use identity matrix when drawing the current shape
+        const identityMatrix = new Float32Array([
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        ]);
+        gl.uniformMatrix4fv(modelMatrixLocation, false, identityMatrix);
+
         gl.uniform4fv(colorLocation, [0, 0, 1, 1]); 
         gl.drawArrays(gl.LINE_STRIP, 0, currentVertices.length / 2);
     }
