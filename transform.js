@@ -41,18 +41,26 @@ export class Transform {
 
     updateModelTransformMatrix() {
         mat4.identity(this.modelTransformMatrix);
-
-        // Move to centroid before applying transformations
-        mat4.translate(this.modelTransformMatrix, this.modelTransformMatrix, this.centroid);
-
-        // Apply transformations
-        mat4.rotate(this.modelTransformMatrix, this.modelTransformMatrix, this.rotationAngle, this.rotationAxis);
-        mat4.scale(this.modelTransformMatrix, this.modelTransformMatrix, this.scale);
-        mat4.translate(this.modelTransformMatrix, this.modelTransformMatrix, vec3.negate(vec3.create(), this.centroid));
-        
-        // Apply translation
+    
+        // Step 1: Apply Final Translation (Move Shape to its position)
         mat4.translate(this.modelTransformMatrix, this.modelTransformMatrix, this.translate);
+    
+        // Step 2: Move to Centroid (for local transformations)
+        mat4.translate(this.modelTransformMatrix, this.modelTransformMatrix, this.centroid);
+    
+        // Step 3: Apply Rotation
+        mat4.rotate(this.modelTransformMatrix, this.modelTransformMatrix, this.rotationAngle, this.rotationAxis);
+    
+        // Step 4: Apply Scaling
+        mat4.scale(this.modelTransformMatrix, this.modelTransformMatrix, this.scale);
+    
+        // Step 5: Move Back from Centroid
+        let negCentroid = vec3.create();
+        vec3.negate(negCentroid, this.centroid);
+        mat4.translate(this.modelTransformMatrix, this.modelTransformMatrix, negCentroid);
     }
+    
+    
 
     getModelTransformMatrix() {
         return this.modelTransformMatrix;

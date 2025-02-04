@@ -11,8 +11,8 @@ if (!gl) {
 }
 
 // Set canvas size
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+canvas.width = 800;
+canvas.height = 800;
 gl.viewport(0, 0, canvas.width, canvas.height);
 
 // Create and Link Shader Program
@@ -49,18 +49,18 @@ function getMousePos(event) {
     ];
 }
 
-// Function to check if a point is inside a shape (Bounding Box for now)
-function isPointInShape(px, py, shape) {
-    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+// **Ray-Casting Algorithm for Point-in-Polygon Selection**
+function isPointInPolygon(px, py, shape) {
+    let inside = false;
+    for (let i = 0, j = shape.length - 2; i < shape.length; j = i, i += 2) {
+        let xi = shape[i], yi = shape[i + 1];
+        let xj = shape[j], yj = shape[j + 1];
 
-    for (let i = 0; i < shape.length; i += 2) {
-        minX = Math.min(minX, shape[i]);
-        maxX = Math.max(maxX, shape[i]);
-        minY = Math.min(minY, shape[i + 1]);
-        maxY = Math.max(maxY, shape[i + 1]);
+        let intersect = ((yi > py) !== (yj > py)) &&
+                        (px < (xj - xi) * (py - yi) / (yj - yi) + xi);
+        if (intersect) inside = !inside;
     }
-
-    return px >= minX && px <= maxX && py >= minY && py <= maxY;
+    return inside;
 }
 
 // Calculate the centroid of a shape
@@ -81,7 +81,7 @@ canvas.addEventListener("mousedown", (event) => {
     // Check if the click is inside an existing shape
     selectedIndex = -1;
     for (let i = 0; i < shapes.length; i++) {
-        if (isPointInShape(pos[0], pos[1], shapes[i])) {
+        if (isPointInPolygon(pos[0], pos[1], shapes[i])) {
             selectedIndex = i;
             transforms[i].setCentroid(calculateCentroid(shapes[i]));
             console.log('Shape ${i} selected at centroid:', transforms[i].centroid);
@@ -109,26 +109,25 @@ document.addEventListener("keydown", (event) => {
     if (selectedIndex !== -1) { // Only apply transformations if a shape is selected
         const transform = transforms[selectedIndex];
 
-        if (event.key === 'ArrowUp') {
-            transform.translateShape(0, 0.1, 0); // Move up
-        }
-        if (event.key === 'ArrowDown') {
-            transform.translateShape(0, -0.1, 0); // Move down
-        }
-        if (event.key === 'ArrowLeft') {
-            transform.translateShape(-0.1, 0, 0); // Move left
-        }
-        if (event.key === 'ArrowRight') {
-            transform.translateShape(0.1, 0, 0); // Move right
-        }
-        if (event.key === 'r') {
-            transform.rotateShape(Math.PI / 180, [0, 0, 1]); // Rotate by 1 degree around Z-axis
-        }
-        if (event.key === '+') {
-            transform.scaleShape(1.1, 1.1, 1); // Scale up
-        }
-        if (event.key === '-') {
-            transform.scaleShape(0.9, 0.9, 1); // Scale down
+        switch (event.key) {
+            case "ArrowUp": transform.translateShape(0, 0.1, 0); break;
+            case "ArrowDown": transform.translateShape(0, -0.1, 0); break;
+            case "ArrowLeft": transform.translateShape(-0.1, 0, 0); break;
+            case "ArrowRight": transform.translateShape(0.1, 0, 0); break;
+            case "r": transform.rotateShape(Math.PI / 12, [0, 0, 1]); break;
+            case "+": transform.scaleShape(1.1, 1.1, 1); break;
+            case "-": transform.scaleShape(0.9, 0.9, 1); break;
+            case "1": shapes[selectedIndex].color = [1.0, 0.0, 0.0, 1.0]; break;
+            case "2": shapes[selectedIndex].color = [0.0, 1.0, 0.0, 1.0]; break;
+            case "3": shapes[selectedIndex].color = [0.0, 0.0, 1.0, 1.0]; break;
+    
+            // case "t": // Bring forward
+            //     selectedShape.zIndex = Math.max(...shapes.map(s => s.zIndex)) + 1;
+            //     break;
+    
+            // case "b": // Send backward
+            //     selectedShape.zIndex = Math.min(...shapes.map(s => s.zIndex)) - 1;
+            //     break;
         }
         console.log('Transform applied to shape ${selectedIndex}');
     }

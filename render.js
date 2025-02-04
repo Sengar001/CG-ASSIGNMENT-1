@@ -9,7 +9,7 @@ export function drawShapes(gl, shapes, currentVertices, positionBuffer, position
         gl.enableVertexAttribArray(positionLocation);
         gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
-        gl.uniform4fv(colorLocation, [0.7, 0.7, 0.7, 1.0]);
+        gl.uniform4fv(colorLocation, shape.color || [0.7, 0.7, 0.7, 1.0]);
 
         // Send the transformation matrix to WebGL
         const modelMatrix = transforms[index].getModelTransformMatrix();
