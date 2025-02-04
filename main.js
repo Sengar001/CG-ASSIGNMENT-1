@@ -36,6 +36,7 @@ const colorLocation = gl.getUniformLocation(program, "uColor");
 
 // Shape Storage
 let currentVertices = [];
+let original = [];
 let shapes = [];
 let transforms = []; // Store transformations per shape
 let selectedIndex = -1; // Index of selected shape
@@ -81,9 +82,9 @@ canvas.addEventListener("mousedown", (event) => {
     // Check if the click is inside an existing shape
     selectedIndex = -1;
     for (let i = 0; i < shapes.length; i++) {
-        if (isPointInPolygon(pos[0], pos[1], shapes[i])) {
+        if (isPointInPolygon(pos[0], pos[1], original[i])) {
             selectedIndex = i;
-            transforms[i].setCentroid(calculateCentroid(shapes[i]));
+            transforms[i].setCentroid(calculateCentroid(original[i]));
             console.log('Shape ${i} selected at centroid:', transforms[i].centroid);
             return;
         }
@@ -96,6 +97,7 @@ canvas.addEventListener("mousedown", (event) => {
 // Keyboard Event to Finalize Shape ('s' Key)
 document.addEventListener("keydown", (event) => {
     if (event.key === "s" && currentVertices.length >= 6) {  
+        original.push([...currentVertices]);
         const triangulatedShape = earClippingTriangulation(currentVertices);
         shapes.push(triangulatedShape);
         transforms.push(new Transform()); // Create a new transform instance for this shape
@@ -121,13 +123,19 @@ document.addEventListener("keydown", (event) => {
             case "2": shapes[selectedIndex].color = [0.0, 1.0, 0.0, 1.0]; break;
             case "3": shapes[selectedIndex].color = [0.0, 0.0, 1.0, 1.0]; break;
     
-            // case "t": // Bring forward
-            //     selectedShape.zIndex = Math.max(...shapes.map(s => s.zIndex)) + 1;
-            //     break;
-    
-            // case "b": // Send backward
-            //     selectedShape.zIndex = Math.min(...shapes.map(s => s.zIndex)) - 1;
-            //     break;
+            case "t": // Rotate array forward (bring first element to the end)
+            if (shapes.length > 1) {
+                shapes.push(shapes.shift()); // Move first element to the last
+                transforms.push(transforms.shift()); // Keep transforms aligned
+            }
+            break;
+
+            case "b": // Rotate array backward (bring last element to the front)
+            if (shapes.length > 1) {
+                shapes.unshift(shapes.pop()); // Move last element to the first
+                transforms.unshift(transforms.pop()); // Keep transforms aligned
+            }
+            break;
         }
         console.log('Transform applied to shape ${selectedIndex}');
     }
