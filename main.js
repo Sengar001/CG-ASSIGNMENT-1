@@ -41,6 +41,25 @@ let shapes = [];
 let transforms = []; // Store transformations per shape
 let selectedIndex = -1; // Index of selected shape
 
+// Star shape to move
+let starShape = [
+    0, 0.001, // Top point
+    0.05, -0.05, // Bottom right point
+    -0.05, -0.05,  // Right point
+];
+let starPos = [0, 0]; // Initial star position
+
+// **Calculate the centroid of a shape**
+function calculateCentroid(shape) {
+    let sumX = 0, sumY = 0;
+    for (let i = 0; i < shape.length; i += 2) {
+        sumX += shape[i];
+        sumY += shape[i + 1];
+    }
+    const count = shape.length / 2;
+    return [sumX / count, sumY / count, 0];
+}
+
 // Convert Mouse Coordinates to WebGL Space
 function getMousePos(event) {
     const rect = canvas.getBoundingClientRect();
@@ -64,17 +83,6 @@ function isPointInPolygon(px, py, shape) {
     return inside;
 }
 
-// Calculate the centroid of a shape
-function calculateCentroid(shape) {
-    let sumX = 0, sumY = 0;
-    for (let i = 0; i < shape.length; i += 2) {
-        sumX += shape[i];
-        sumY += shape[i + 1];
-    }
-    const count = shape.length / 2;
-    return [sumX / count, sumY / count, 0];
-}
-
 // Mouse Event for Clicking on Shape
 canvas.addEventListener("mousedown", (event) => {
     const pos = getMousePos(event);
@@ -85,13 +93,16 @@ canvas.addEventListener("mousedown", (event) => {
         if (isPointInPolygon(pos[0], pos[1], original[i])) {
             selectedIndex = i;
             transforms[i].setCentroid(calculateCentroid(original[i]));
-            console.log('Shape ${i} selected at centroid:', transforms[i].centroid);
+            console.log(`Shape ${i} selected at centroid:`, transforms[i].centroid);
             return;
         }
     }
 
     // If no shape selected, start a new shape
     currentVertices.push(pos[0], pos[1]);
+
+    // Update star position on mouse click
+    starPos = [pos[0], pos[1]];
 });
 
 // Keyboard Event to Finalize Shape ('s' Key)
@@ -137,14 +148,14 @@ document.addEventListener("keydown", (event) => {
             }
             break;
         }
-        console.log('Transform applied to shape ${selectedIndex}');
+        console.log(`Transform applied to shape ${selectedIndex}`);
     }
 });
 
 // Rendering Loop
 function draw() {
     gl.clear(gl.COLOR_BUFFER_BIT);
-    drawShapes(gl, shapes, currentVertices, positionBuffer, positionLocation, colorLocation, transforms, program); 
+    drawShapes(gl, shapes, currentVertices, positionBuffer, positionLocation, colorLocation, transforms, program, starShape, starPos); 
     requestAnimationFrame(draw);
 }
 
