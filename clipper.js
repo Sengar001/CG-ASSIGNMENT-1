@@ -64,13 +64,10 @@ export function earClippingTriangulation(vertices) {
         return triangles;
     }
 
-    // Compute the signed area
     let area = computeSignedArea(polygon);
 
-    // If the area is negative, the polygon is in clockwise order
     let originalTriangles = triangulate(polygon);
     let reversedTriangles = triangulate([...polygon].reverse());
 
-    // Return the triangulation with more triangles
     return originalTriangles.length >= reversedTriangles.length ? originalTriangles : reversedTriangles;
 }
