@@ -127,37 +127,54 @@ document.addEventListener("keydown", (event) => {
     }
 });
 
-// Apply transformations based on keyboard events
+// Track if transformations should be applied to all shapes
+let applyToAll = false;
+
 document.addEventListener("keydown", (event) => {
-    if (selectedIndex !== -1) { // Only apply transformations if a shape is selected
-        const transform = transforms[selectedIndex];
+    if (event.key === "a") {
+        // Toggle the applyToAll state
+        applyToAll = !applyToAll;
+        console.log(applyToAll ? "All shapes will be transformed" : "Transformations applied to selected shape only");
+    }
 
-        switch (event.key) {
-            case "ArrowUp": transform.translateShape(0, 0.1, 0); break;
-            case "ArrowDown": transform.translateShape(0, -0.1, 0); break;
-            case "ArrowLeft": transform.translateShape(-0.1, 0, 0); break;
-            case "ArrowRight": transform.translateShape(0.1, 0, 0); break;
-            case "r": transform.rotateShape(Math.PI / 12, [0, 0, 1]); break;
-            case "+": transform.scaleShape(1.1, 1.1, 1); break;
-            case "-": transform.scaleShape(0.9, 0.9, 1); break;
-            case "1": shapes[selectedIndex].color = [1.0, 0.0, 0.0, 1.0]; break;
-            case "2": shapes[selectedIndex].color = [0.0, 1.0, 0.0, 1.0]; break;
-            case "3": shapes[selectedIndex].color = [0.0, 0.0, 1.0, 1.0]; break;
-            case "t": // Rotate array forward (bring first element to the end)
-            if (shapes.length > 1) {
-                shapes.push(shapes.shift());
-                transforms.push(transforms.shift());
-            }
-            break;
+    // Apply transformations based on key event
+    if (selectedIndex !== -1 || applyToAll) {
+        const targets = applyToAll ? transforms : [transforms[selectedIndex]];
 
-            case "b": // Rotate array backward (bring last element to the front)
-            if (shapes.length > 1) {
-                shapes.unshift(shapes.pop());
-                transforms.unshift(transforms.pop());
+        targets.forEach(transform => {
+            switch (event.key) {
+                case "ArrowUp": transform.translateShape(0, 0.1, 0); break;
+                case "ArrowDown": transform.translateShape(0, -0.1, 0); break;
+                case "ArrowLeft": transform.translateShape(-0.1, 0, 0); break;
+                case "ArrowRight": transform.translateShape(0.1, 0, 0); break;
+                case "r": transform.rotateShape(Math.PI / 12, [0, 0, 1]); break;
+                case "+": transform.scaleShape(1.1, 1.1, 1); break;
+                case "-": transform.scaleShape(0.9, 0.9, 1); break;
+                case "1": 
+                    if (applyToAll) {
+                        shapes.forEach(shape => shape.color = [1.0, 0.0, 0.0, 1.0]); // Red for all shapes
+                    } else {
+                        shapes[selectedIndex].color = [1.0, 0.0, 0.0, 1.0]; // Red for selected shape
+                    }
+                    break;
+                case "2": 
+                    if (applyToAll) {
+                        shapes.forEach(shape => shape.color = [0.0, 1.0, 0.0, 1.0]); // Green for all shapes
+                    } else {
+                        shapes[selectedIndex].color = [0.0, 1.0, 0.0, 1.0]; // Green for selected shape
+                    }
+                    break;
+                case "3": 
+                    if (applyToAll) {
+                        shapes.forEach(shape => shape.color = [0.0, 0.0, 1.0, 1.0]); // Blue for all shapes
+                    } else {
+                        shapes[selectedIndex].color = [0.0, 0.0, 1.0, 1.0]; // Blue for selected shape
+                    }
+                    break;
             }
-            break;
-        }
-        console.log(`Transform applied to shape ${selectedIndex}`);
+        });
+
+        console.log(applyToAll ? "Transformation applied to all shapes" : `Transform applied to shape ${selectedIndex}`);
     }
 });
 

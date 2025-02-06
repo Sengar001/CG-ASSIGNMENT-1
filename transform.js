@@ -60,7 +60,6 @@ export class Transform {
         mat4.translate(this.modelTransformMatrix, this.modelTransformMatrix, negCentroid);
     }
     
-    
 
     getModelTransformMatrix() {
         return this.modelTransformMatrix;
