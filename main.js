@@ -2,6 +2,7 @@ import { vertexShaderSource, fragmentShaderSource, createShader } from './shader
 import { earClippingTriangulation } from './clipper.js';
 import { drawShapes } from './render.js';
 import { Transform } from './transform.js';
+import { vec3, mat4 } from 'https://cdn.skypack.dev/gl-matrix';
 
 const canvas = document.getElementById("glCanvas");
 const gl = canvas.getContext("webgl");
@@ -36,7 +37,6 @@ const colorLocation = gl.getUniformLocation(program, "uColor");
 
 // Shape Storage
 let currentVertices = [];
-let original = [];
 let shapes = [];
 let transforms = []; // Store transformations per shape
 let selectedIndex = -1; // Index of selected shape
@@ -86,14 +86,25 @@ function isPointInPolygon(px, py, shape) {
 // Mouse Event for Clicking on Shape
 canvas.addEventListener("mousedown", (event) => {
     const pos = getMousePos(event);
+    const clickPosition = vec3.fromValues(pos[0], pos[1], 0);
 
-    // Check if the click is inside an existing shape
     selectedIndex = -1;
     for (let i = 0; i < shapes.length; i++) {
-        if (isPointInPolygon(pos[0], pos[1], original[i])) {
+        const transform = transforms[i];
+
+        // Get the inverse transformation matrix
+        let inverseMatrix = mat4.create();
+        mat4.invert(inverseMatrix, transform.getModelTransformMatrix());
+
+        // Transform the click position back to the shape's local space
+        let localClickPos = vec3.create();
+        vec3.transformMat4(localClickPos, clickPosition, inverseMatrix);
+
+        // Check if transformed point is inside the shape
+        if (isPointInPolygon(localClickPos[0], localClickPos[1], shapes[i])) {
             selectedIndex = i;
-            transforms[i].setCentroid(calculateCentroid(original[i]));
-            console.log(`Shape ${i} selected at centroid:`, transforms[i].centroid);
+            transform.setCentroid(calculateCentroid(shapes[i]));
+            console.log(`Shape ${i} selected at centroid:`, transform.centroid);
             return;
         }
     }
@@ -108,7 +119,6 @@ canvas.addEventListener("mousedown", (event) => {
 // Keyboard Event to Finalize Shape ('s' Key)
 document.addEventListener("keydown", (event) => {
     if (event.key === "s" && currentVertices.length >= 6) {  
-        original.push([...currentVertices]);
         const triangulatedShape = earClippingTriangulation(currentVertices);
         shapes.push(triangulatedShape);
         transforms.push(new Transform()); // Create a new transform instance for this shape
@@ -133,18 +143,17 @@ document.addEventListener("keydown", (event) => {
             case "1": shapes[selectedIndex].color = [1.0, 0.0, 0.0, 1.0]; break;
             case "2": shapes[selectedIndex].color = [0.0, 1.0, 0.0, 1.0]; break;
             case "3": shapes[selectedIndex].color = [0.0, 0.0, 1.0, 1.0]; break;
-    
             case "t": // Rotate array forward (bring first element to the end)
             if (shapes.length > 1) {
-                shapes.push(shapes.shift()); // Move first element to the last
-                transforms.push(transforms.shift()); // Keep transforms aligned
+                shapes.push(shapes.shift());
+                transforms.push(transforms.shift());
             }
             break;
 
             case "b": // Rotate array backward (bring last element to the front)
             if (shapes.length > 1) {
-                shapes.unshift(shapes.pop()); // Move last element to the first
-                transforms.unshift(transforms.pop()); // Keep transforms aligned
+                shapes.unshift(shapes.pop());
+                transforms.unshift(transforms.pop());
             }
             break;
         }
