@@ -171,6 +171,19 @@ document.addEventListener("keydown", (event) => {
                         shapes[selectedIndex].color = [0.0, 0.0, 1.0, 1.0]; // Blue for selected shape
                     }
                     break;
+                case "t": // Rotate array forward (bring first element to the end)
+                    if (shapes.length > 1) {
+                        shapes.push(shapes.shift());
+                        transforms.push(transforms.shift());
+                    }
+                    break;
+
+                case "b": // Rotate array backward (bring last element to the front)
+                    if (shapes.length > 1) {
+                        shapes.unshift(shapes.pop());
+                        transforms.unshift(transforms.pop());
+                    }
+                    break;
             }
         });
 
