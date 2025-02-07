@@ -1,5 +1,5 @@
 
-import { vec3, mat4 } from 'https://cdn.skypack.dev/gl-matrix';
+import { vec3, mat4 } from "https://cdn.skypack.dev/gl-matrix";
 
 export class Transform {
     constructor() {

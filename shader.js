@@ -19,7 +19,6 @@ export function createShader(gl, type, source) {
     gl.shaderSource(shader, source);
     gl.compileShader(shader);
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        // console.error(gl.getShaderInfoLog(shader));
         gl.deleteShader(shader);
         return null;
     }
