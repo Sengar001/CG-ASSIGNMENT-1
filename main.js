@@ -41,6 +41,7 @@ let starPos = [0, 0];
 let cursorVisible = true;
 let applyToAll = false;
 let isDrawing = true;
+let maxShapes = 3;
 
 function centroid(shape) {
     let sumX = 0, sumY = 0;
@@ -73,6 +74,8 @@ function clearCanvas() {
     shapes.length = 0;
     transforms.length = 0;
     currentVertices.length = 0;
+    maxShapes = 3;
+    document.getElementById("shapeCount").innerText = `Max Shapes: ${maxShapes}`;
 }
 
 function cursorVisibility() {
@@ -124,22 +127,21 @@ document.addEventListener("keydown", (event) => {
             case "Enter": currentVertices.push(newPoint[0], newPoint[1]);
                 break;
             case "s": 
-                if (currentVertices.length >= 6) { 
+                if (currentVertices.length >= 6 && shapes.length < maxShapes) { 
                     const triangulatedShape = earClippingTriangulation(currentVertices);
                     shapes.push(triangulatedShape);
                     transforms.push(new Transform());
                     currentVertices = [];
                 }
                 break;
-        }
-
+            }
         starPos = newPoint;
     }
 });
 
 
 document.addEventListener("keydown", (event) => {
-    if (event.key === "s" && currentVertices.length >= 6) {  
+    if (event.key === "s" && currentVertices.length >= 6 && shapes.length < maxShapes) {  
         const triangulatedShape = earClippingTriangulation(currentVertices);
         shapes.push(triangulatedShape);
         transforms.push(new Transform()); 
@@ -152,6 +154,12 @@ document.getElementById("clearCanvas").addEventListener("click", clearCanvas);
 document.getElementById("toggleCursor").addEventListener("click", cursorVisibility);
 
 document.getElementById("toggleMovement").addEventListener("click", toggleDrawing);
+
+document.getElementById("increaseShapes").addEventListener("click", () => {
+    if(shapes.length == 0) maxShapes++;
+    document.getElementById("shapeCount").innerText = `Max Shapes: ${maxShapes}`;
+});
+
 
 document.addEventListener("keydown", (event) => {
     if (event.key === "a") {

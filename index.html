@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebGL Shape Editor</title>
+    <title>WebGL Assignment</title>
     <style>
         canvas {
             border: 1px solid black;
@@ -17,11 +17,13 @@
     </style>
 </head>
 <body>
-    <h1>WebGL Shapes</h1>
-    <p>Use arrow keys to move shapes, 'r' to rotate, '+'/'-' to scale, 's' to make final shape, 'a' to select all shapes</p>
+    <!-- <h1>WebGL Shapes</h1> -->
+    <p>Use <b>arrow keys</b> to move shapes, <b>'r'</b> to rotate, <b>'+'/'-'</b> to scale, <b>'s'</b> to make final shape, <b>'a'</b> to select all shapes</p>
     <button id="toggleCursor">Cursor Visibility</button>
     <button id="toggleMovement">Drawing</button>
     <button id="clearCanvas">Clear Canvas</button>
+    <button id="increaseShapes">Increase Shape Limit</button>
+    <p id="shapeCount">Max Shapes: 3</p>
     <canvas id="glCanvas" width="200" height="200"></canvas>
     <script type="module" src="main.js"></script>
 </body>

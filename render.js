@@ -24,7 +24,7 @@ export function drawShapes(gl, shapes, currentVertices, positionBuffer, position
         gl.drawArrays(gl.LINE_STRIP, 0, currentVertices.length / 2);
     }
 
-    // star cursor
+    // cursor
     if(cursorVisible) { 
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(starShape), gl.STATIC_DRAW);
